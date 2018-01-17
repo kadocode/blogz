@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}<h1>Build a Blog</h1>{% endblock %}
+
+{% block content %}
+    <span>
+        <a href="/blog">Main Blog Page</a>
+    </span>
+    <span>
+        <a href="/newpost">Add a Blog Entry</a>
+    </span>
+<hr />
+    {% if bloglist|length == 0 %}
+    <p>No blogs yet</p>
+    <!-- {% else %}
+        <!-- <ul>
+            {% for blog in blogs %}
+            <li>{{blog.name}}
+                <form method="POST" action="/delete-blog" style="display:inline-block;">
+                    <input type="hidden" name="blog-id" value="{{blog.id}}" />
+                    <input type="submit" value="Done!" />
+                </form>
+            </li>
+            {% endfor %}
+        </ul> -->
+    
+    {% for blog in bloglist %}
+        <h2><a href="/blog?id={{blog.id}}">{{blog.title}}</a></h2>
+        <p>{{blog.body}} </p>
+    <hr />
+    {% endfor %}
+    {% endif %}
+    
+
+
+
+{% endblock %}
+
+
+<!-- <h1>Add A New Blog</h1>
+<form method= 'post'>
+    <label>
+        New Blog:
+        <input type='text' name='blog' />
+    </label>
+    <input type='submit' value='Add a new blog' />
+</form>
+
+<hr />  -->
