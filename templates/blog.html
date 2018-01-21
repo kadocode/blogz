@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}<h1>Build a Blog</h1>{% endblock %}
+{% block title %}<h1>Your Blogs</h1>{% endblock %}
 
 {% block content %}
     <span>
@@ -11,24 +11,24 @@
 <hr />
     {% if bloglist|length == 0 %}
     <p>No blogs yet</p>
-    <!-- {% else %}
-        <!-- <ul>
+    {% else %}
+        <ul>
             {% for blog in blogs %}
-            <li>{{blog.name}}
+            <li>{{blog.title}}
                 <form method="POST" action="/delete-blog" style="display:inline-block;">
                     <input type="hidden" name="blog-id" value="{{blog.id}}" />
-                    <input type="submit" value="Done!" />
+                    <input type="submit" value="Delete this entry" />
                 </form>
             </li>
-            {% endfor %}
-        </ul> -->
+            <!-- {% endfor %}
+        </ul>
     
-    {% for blog in bloglist %}
+     {% for blog in bloglist %}
         <h2><a href="/blog?id={{blog.id}}">{{blog.title}}</a></h2>
-        <p>{{blog.body}} </p>
+        <p>{{blog.body}} </p> 
     <hr />
     {% endfor %}
-    {% endif %}
+    {% endif %} -->
     
 
 
