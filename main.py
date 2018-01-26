@@ -36,7 +36,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'signup']
+    allowed_routes = ['login', 'signup', 'index']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
@@ -61,8 +61,13 @@ def signup():
         username = request.form['username']
         password = request.form['password']
         verify = request.form['verify']
-
         #TODO - validate
+        if len(username) < 3 or len(username) > 20 or " " in username:
+             flash("Username Not Valid", 'error')
+        if len(password) < 3 or len(password) > 20 or " " in password:
+             flash("Password Not Valid", 'error')
+        if password != verify:
+             flash("Passwords Do Not Match", 'error')
 
         existing_user = User.query.filter_by(username=username).first()
         if not existing_user:
@@ -73,7 +78,7 @@ def signup():
             return redirect('/newpost')
         else:
             #TODO - user better response messaging
-            return "<h1>NOpe</h1>"
+            flash("That user already exists!", 'error')
 
     return render_template('signup.html')
 
@@ -82,24 +87,16 @@ def logout():
     del session['username']
     return redirect('/login')
 
-@app.route('/', methods=['POST', 'GET'])
-def index():
-
-    if request.method == 'POST':
-        blog_title = request.form['blog']
-        new_blog = Blog(blog_title)
-        db.session.add(new_blog)
-        db.session.commit()
-
+@app.route('/blog', methods=['POST', 'GET'])
+def blog_index():
+    
+    blog_id = request.args.get('id')
+    if blog_id:
+        blog_id = int(blog_id)
+        blog = Blog.query.get(blog_id)
+        return render_template('onetime.html', blog=blog)
     blogs = Blog.query.filter_by(completed=False).all()
     return render_template('blog.html', title="Start A Blog!", blogs=blogs)
-    # blog_id = request.args.get('id')
-    # if blog_id:
-    #     blog_id = int(blog_id)
-    #     blog = Blog.query.get(blog_id)
-    #     return render_template('onetime.html', blog=blog)
-    # bloglist = Blog.query.all()
-    # return render_template('blog.html', title="Build-a-Blog", bloglist=bloglist)
 
 @app.route('/delete-blog', methods=['POST'])
 def delete_blog():
@@ -109,17 +106,16 @@ def delete_blog():
     db.session.add(blog)
     db.session.commit()
 
-    return redirect('/')
+    return redirect('/blog')
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
     body = ''
     title = ''
-    owner = ''
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
-        owner = request.form['owner']
+        owner =User.query.filter_by(username=session['username']).first()
         has_error = False
         if not title:
             flash("Please enter a title", 'error')
@@ -127,12 +123,17 @@ def newpost():
         if not body:
             flash("Please enter a body", 'error')
             has_error = True
-        if has_error:
+        if not has_error:
             blog = Blog(title, body, owner)
             db.session.add(blog)
             db.session.commit()
-            return redirect('/newpost')
-    return render_template('newpost.html', body=body, title=title, owner=owner)
+            return redirect('/blog?id={0}'.format(blog.id))
+    return render_template('newpost.html', body=body, title=title)
+
+@app.route('/')
+def index():
+    user_list = User.query.all()
+    return render_template('index.html', user_list=user_list)
 
 
 if __name__ == '__main__':
